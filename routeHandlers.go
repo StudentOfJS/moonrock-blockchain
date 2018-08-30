@@ -18,14 +18,14 @@ func HandleWriteBlock(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&m); err != nil {
-		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
+		RespondWithJSON(w, r, http.StatusBadRequest, r.Body)
 		return
 	}
 	defer r.Body.Close()
 
 	newBlock, err := generateBlock(Blockchain[len(Blockchain)-1], m.BPM)
 	if err != nil {
-		respondWithJSON(w, r, http.StatusInternalServerError, m)
+		RespondWithJSON(w, r, http.StatusInternalServerError, m)
 		return
 	}
 	if isBlockValid(newBlock, Blockchain[len(Blockchain)-1]) {
@@ -34,7 +34,7 @@ func HandleWriteBlock(w http.ResponseWriter, r *http.Request) {
 		spew.Dump(Blockchain)
 	}
 
-	respondWithJSON(w, r, http.StatusCreated, newBlock)
+	RespondWithJSON(w, r, http.StatusCreated, newBlock)
 
 }
 
