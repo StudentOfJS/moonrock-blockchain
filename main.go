@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -35,7 +36,11 @@ func makeMuxRouter() http.Handler {
 	return muxRouter
 }
 
-var bcServer chan []Block
+// BCServer is the channel for communicating with the server
+var BCServer chan []Block
+
+// Mutex for sync
+var Mutex = &sync.Mutex{}
 
 func main() {
 	err := godotenv.Load()
@@ -43,7 +48,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	bcServer = make(chan []Block)
+	BCServer = make(chan []Block)
 
 	// create genesis block
 	t := time.Now()

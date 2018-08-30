@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"io"
+	"log"
 	"net"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/davecgh/go-spew/spew"
 )
@@ -52,4 +56,48 @@ func HandleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 // HandleConn takes care of the incoming blockchain connection requests
 func HandleConn(conn net.Conn) {
 	defer conn.Close()
+	io.WriteString(conn, "Enter a new BPM:")
+
+	scanner := bufio.NewScanner(conn)
+
+	// take in BPM from stdin and add it to blockchain after conducting necessary validation
+	go func() {
+		for scanner.Scan() {
+			bpm, err := strconv.Atoi(scanner.Text())
+			if err != nil {
+				log.Printf("%v not a number: %v", scanner.Text(), err)
+				continue
+			}
+			newBlock, err := generateBlock(Blockchain[len(Blockchain)-1], bpm)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			if isBlockValid(newBlock, Blockchain[len(Blockchain)-1]) {
+				newBlockchain := append(Blockchain, newBlock)
+				replaceChain(newBlockchain)
+			}
+
+			BCServer <- Blockchain
+			io.WriteString(conn, "\nEnter a new BPM:")
+		}
+	}()
+
+	// simulate receiving broadcast
+	go func() {
+		for {
+			time.Sleep(30 * time.Second)
+			Mutex.Lock()
+			output, err := json.Marshal(Blockchain)
+			if err != nil {
+				log.Fatal(err)
+			}
+			Mutex.Unlock()
+			io.WriteString(conn, string(output))
+		}
+	}()
+
+	for _ = range BCServer {
+		spew.Dump(Blockchain)
+	}
 }

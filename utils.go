@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// Block struct holds the schema of the blockchain
 type Block struct {
 	Index     int
 	Timestamp string
@@ -16,6 +17,7 @@ type Block struct {
 	PrevHash  string
 }
 
+// Blockchain is the array of blocks
 var Blockchain []Block
 
 func calculateHash(block Block) string {
