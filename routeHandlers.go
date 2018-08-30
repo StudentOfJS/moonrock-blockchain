@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io"
+	"net"
 	"net/http"
 
 	"github.com/davecgh/go-spew/spew"
@@ -46,4 +47,9 @@ func HandleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	io.WriteString(w, string(bytes))
+}
+
+// HandleConn takes care of the incoming blockchain connection requests
+func HandleConn(conn net.Conn) {
+	defer conn.Close()
 }
