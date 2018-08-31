@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -42,7 +44,15 @@ var BCServer chan []Block
 // Mutex for sync
 var Mutex = &sync.Mutex{}
 
+var Version = "0.0.1"
+
 func main() {
+	version := flag.Bool("version", false, "get version")
+	flag.Parse()
+	if *version {
+		fmt.Printf("this is version %s\n", Version)
+		return
+	}
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(err)
